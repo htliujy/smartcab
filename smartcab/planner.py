@@ -57,7 +57,7 @@ class RoutePlanner(object):
 
         # Finally, check if destination is cardinally North or South of location
         elif dy != 0:
-
+    
             if dy * heading[1] > 0:  # Heading the correct North or South direction
                 return 'forward'
             elif dy * heading[1] < 0 and heading[1] < 0: # Heading North, destination South
