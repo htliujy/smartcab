@@ -11836,7 +11836,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># 检查你的Python版本</span>
@@ -11852,7 +11852,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># Import the visualization code</span>
@@ -11939,10 +11939,10 @@ div#notebook {
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>回答：</strong></p>
 <ul>
-<li>agent.py里的flag，选取Environment()构造方法的三个参数：1、verbose为True时，在模拟程序控制台打印出更多模拟过程状态信息；2、num_dummies代表在模拟环境中车辆的数量; 3、grid_size表示模拟环境中有多少个车道数量（街区），默认grid_size(8,6)为8条南北通向的车道，6条东西方向的车道</li>
-<li>在environment.py Python文件里，当代理程序执行一个行动时，调用Environment类的act()函数</li>
-<li>在simulator.py Python 文件里，'render_text()'函数和'render()'函数之间的区别：渲染文字和渲染图形   </li>
-<li>在planner.py Python文件里，'next_waypoint() 函数会先考虑东西方向，再考虑南北方向</li>
+<li>agent.py里的flag，选取<code>Environment()</code>构造方法的三个参数：1、verbose为True时，在模拟程序控制台打印出更多模拟过程状态信息；2、num_dummies代表在模拟环境中车辆的数量; 3、grid_size表示模拟环境中有多少个车道数量（街区），默认grid_size(8,6)为8条南北通向的车道，6条东西方向的车道</li>
+<li>在<code>environment.py</code> Python文件里，当代理程序执行一个行动时，调用Environment类的<code>'act()'</code>函数</li>
+<li>在<code>simulator.py</code> Python 文件里，<code>'render_text()'</code>函数和<code>'render()'</code>函数之间的区别：渲染文字和渲染图形   </li>
+<li>在<code>planner.py</code> Python文件里，<code>'next_waypoint()'</code> 函数会先考虑东西方向，再考虑南北方向</li>
 </ul>
 
 </div>
@@ -11977,7 +11977,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># Load the &#39;sim_no-learning&#39; log file from the initial simulation results</span>
@@ -12091,7 +12091,12 @@ div#notebook {
 <ul>
 <li>inputs的数据和安全性的相关性最高，也就是，如果没有这个参数（交通灯，周边行驶车辆），那么汽车驾驶的安全性可以说无从谈起了；</li>
 <li>waypoint和效率相关性最高，如果我们知道我们要往哪个方向走，才不会南辕北辙；</li>
-<li>如果我一定要放弃某个特征的话，我可能会有限放弃deadline，因为放弃这个参数，只要知道终点的方位（waypoint）还是可以到达终点的，只不过晚到罢了，但若没有方位（waypoint），那就很难到达目的地了。而其他因素又严重影响安全，我是不能放弃的。</li>
+<li>如果我一定要放弃某个特征的话，我可能会有限放弃deadline：<ul>
+<li>1、因为放弃这个参数，只要知道终点的方位（waypoint）还是可以到达终点的，只不过晚到罢了，但若没有方位（waypoint），那就很难到达目的地了；</li>
+<li>2、假如deadline的取值范围是1-20（包含1和20），那么单单deadline就有20种取值，如果添加这个特征，状态空间将会增加20倍，将会变得很大；</li>
+<li>3、驾驶程序中，因为没有获取到当前智能驾驶汽车与目的地的距离（或者说当前汽车的坐标，目的地坐标，而且这个参数恰好是随机的），我们单纯获取到一个deadline，对于智能汽车的驾驶行为决策并无太大意义。也就是该参数的泛化能力较差。</li>
+</ul>
+</li>
 </ul>
 
 </div>
@@ -12124,15 +12129,70 @@ div#notebook {
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>回答：</strong></p>
 <ul>
-<li>如果我选择了如下所有的特征：waypoint, inputs.light, inputs.left, inputs.right, inputs.oncoming，那么状态空间将为：n_state = 512 种状态</li>
-<li>waypoint有：None，forward，left，right，4个状态</li>
+<li>如果我选择了如下所有的特征：waypoint, inputs.light, inputs.left, inputs.right, inputs.oncoming，那么状态空间将为：n_state = 3*2*64 =384 种状态<ul>
+<li>waypoint有：None，forward，left，right，4个状态，但因为None状态指到达目的地了，因此取其中3个状态：forward，left，right；</li>
 <li>inputs.light有：red，green，2个状态</li>
 <li>inputs.left, inputs.right, inputs.oncoming都有：None，left，right，forward，64个组合状态</li>
-<li>我觉得512种状态并不是很多，因此，在一定数量的训练，获取奖励及惩罚后，驾驶代理程序能学会对应的驾驶模式，将车安全开到终点的。</li>
+</ul>
+</li>
+<li>我觉得384种状态并不是很多，因此，在一定数量的训练，获取奖励及惩罚后，驾驶代理程序能学会对应的驾驶模式，将车安全开到终点的。</li>
+<li>在每种状态下，都有4个可能的动作：None，left，right，forword，那么总共应该有：384*4=1536种状态-动作组合，下面我们要训练就需要对这些状态-动作组合进行评估（评估奖励及惩罚）<ul>
+<li>假设每一轮训练会随机经历20个状态（可重复的状态），那么进行500轮实验将会随机经历10000次随机状态，如果这些状态下，我们都是随机挑选动作的（完全探索，对先前训练的结果不加以利用），就会得到10000次随机的状态-动作组合；</li>
+<li>我们把1536种状态-动作组合当作是样品，我们随机抽样（每次都放回）10000次，那么至始至终都没有被抽取到的样品数量（期望值）约为：2.28</li>
+<li>如果我们降低实验次数，使得程序只能经历：5000次随机的状态-动作组合，也就是在1536个样品中可放回随机抽样5000次：那么将有59.19个样品没有被选取到。</li>
+<li>计算公式如下：</li>
+</ul>
+</li>
 </ul>
 
 </div>
 </div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="c1">#计算 s 个样品，随机可重复抽样 t 次，每个样品没有被抽中的概率以及s个样品中，没被抽中的样品数量的期望值</span>
+<span class="kn">from</span> <span class="nn">decimal</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="mi">1536</span><span class="p">)</span>
+<span class="n">t</span> <span class="o">=</span> <span class="mi">5000</span>
+
+<span class="n">X</span> <span class="o">=</span> <span class="p">(</span><span class="n">s</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="n">t</span>
+<span class="n">Y</span> <span class="o">=</span> <span class="n">s</span><span class="o">**</span><span class="n">t</span>
+
+<span class="c1">#单个样品没有被抽中的概率为：</span>
+<span class="n">P</span> <span class="o">=</span> <span class="p">(</span><span class="n">X</span><span class="o">/</span><span class="n">Y</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;The probability of each sample not to be get:&#39;</span><span class="p">,</span><span class="n">P</span><span class="p">)</span>
+
+<span class="c1">#没被抽中的样品数量的期望值</span>
+<span class="n">num</span> <span class="o">=</span> <span class="n">P</span><span class="o">*</span><span class="n">s</span>
+<span class="k">print</span> <span class="p">(</span><span class="s1">&#39;The expectation of samples not to be get:&#39;</span><span class="p">,</span><span class="n">num</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>(&#39;The probability of each sample not to be get:&#39;, Decimal(&#39;0.03853191455488459659335335434&#39;))
+(&#39;The expectation of samples not to be get:&#39;, Decimal(&#39;59.18502075630274036739075227&#39;))
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div>
@@ -12190,7 +12250,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># Load the &#39;sim_default-learning&#39; file from the default Q-Learning simulation</span>
@@ -12246,10 +12306,12 @@ div#notebook {
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>回答：</strong></p>
 <ul>
-<li>从实验结果图中可以发现，从过程上来说：</li>
+<li>从实验结果图中可以发现，从过程上来说：<ul>
 <li>1、从左上角的图形（错误行为的相对频率）可以知道，在训练过程中，随着训练的进展，驾驶代理的错误行为在降低；</li>
 <li>2、从左下角的图形（可靠性）可以看出，随着训练的进展，驾驶代理的可靠性在增加，达到目的地的概率在增加；</li>
 <li>3、从右上角的图形（动作平均奖励）可以看出，动作平均奖励在增加；</li>
+</ul>
+</li>
 <li>如上三点证明，学习训练是有效的。</li>
 <li>但从结果上来说，不论是安全性还是可靠性，都远远不够理想，分析如下：</li>
 <li>从探索因子的变化可以知道，探索因子下降太快了，只是做了20次训练后，探索因子$\epsilon$就降为0（1-20*0.05=0, 1为原始的探索因子，0.05为探索因子线性下降的梯度，也就是20次训练实验后，探索因子变为0），不再进行训练，而我们设定的状态又有太多种，要在20次训练中就学得驾驶的奖惩制度是很困难的。</li>
@@ -12374,7 +12436,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># 我使用的epsilon函数 为 epsilon = cos(t * c) </span>
@@ -12408,13 +12470,13 @@ div#notebook {
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[13]:</div>
+<div class="prompt output_prompt">Out[17]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>[&lt;matplotlib.lines.Line2D at 0x11949cf10&gt;]</pre>
+<pre>[&lt;matplotlib.lines.Line2D at 0x11370f590&gt;]</pre>
 </div>
 
 </div>
@@ -12462,9 +12524,18 @@ div#notebook {
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>回答：</strong></p>
 <ul>
-<li>猜测最佳策略：1、当前面为红灯时，使用None动作为最佳策略；2、当目的地在前方时，遇到绿灯路口，最佳策略是向前行。</li>
+<li>如我们把控的安全性和可靠性，最优策略应该是那种既能保证车辆安全，同时尽快到达目的地的策略，这样才能做到安全，可靠。</li>
+<li>在这个基础上，现有规定也是在引导交通安全有序进行的。这种情况下，有些状态的行动就存在最优策略，既能保证汽车安全驾驶，又能极大降低事故的发生概率；</li>
+<li>因此推理应该有如下最佳策略：<ul>
+<li>1、当前面为红灯时，使用None动作为最佳策略，其次才会考虑路况与目的地，如果路况允许而且目的地在右方，允许右转；</li>
+<li>2、遇到绿灯路口，最佳策略是往目的地方向走，兼顾考虑当前路况。</li>
+</ul>
+</li>
+<li>查看日志，与如上推断相比：<ul>
 <li>对于策略1，有记录：('right', 'red', None, 'left', 'left')-- None : 1.76;  forward : -9.82;  right : 1.53;  left : -10.25。即目的地在右方，路口红灯，但当前最佳策略是等待，其次是右转，这是正确的；</li>
 <li>对于策略2，有记录：('forward', 'green', None, None, 'left')-- None : 0.40;  forward : 1.55;  right : 0.89;  left : 0.62。即目的地在前方，路口绿灯，最佳策略是前行，这符合我们日常开车习惯；</li>
+</ul>
+</li>
 <li>但记录里面也会有策略不同于最佳策略的，如记录：('left', 'red', 'right', 'left', 'right');  None : 0.00;  forward : 0.00;  right : 0.48;  left : -30.41。目的地在左方，路口红灯，且周边有车辆通行，当前最佳策略是等待，但等待（None）的得分是0.0，而右转的得分是0.48大于0.0，猜测，是因为驾驶程序在（随机）探索的时候，恰好没有选择到等待（None）这种动作，导致右转的动作成了最佳策略。</li>
 </ul>
 
@@ -12496,8 +12567,11 @@ div#notebook {
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>回答：</strong></p>
 <ul>
-<li>1、关于出租车本身，如果每次驾驶的目的地不一样，那么未来状态回溯到当前状态进行奖励是无用的；</li>
-<li>2、关于环境，如果各种路况本身是随机发生的，那么，下一状态的奖励其实是基于之前训练的路况得到的，很难适用于现在，现在应该选择当前规划的更佳路线。</li>
+<li>未来奖励<code>gamma*maxQ</code>是指，我们在计算当前状态-动作r(si,ai)获得的奖励时，将该动作(ai)后的下一状态的最优动作效用也算入该动作奖励中（比例为gama），变为奖励：<code>R=r(si,ai)+gmma*maxQ</code>;</li>
+<li>在当前情形下，并不适用，原因有：</li>
+<li>1、关于出租车本身，如果每次驾驶的目的地不一样，那么未来状态回溯到当前状态进行奖励是无用的，假如之前的驾驶经历（未来状态奖励其实是之前训练过程留下的“脚印”）是，下一个点就在终点边上，获得了较大的奖励，但是，我们这次的终点并不一样，我们这次选择动作并到达下一状态，其实不能获取到原先期待的奖励<code>gamma*maxQ</code>；</li>
+<li>2、当前智能车的状态里面并没有记录每次训练的智能车的起、始地址，同时还没有记录当前智能车的位置坐标（未来状态也没有记录这些），所以导致下一状态和当前状态很难对应起来；</li>
+<li>3、当前的智能车不能知道下一个状态是什么状态：会不会遇到红灯，有没有其他车辆阻碍车道。</li>
 </ul>
 
 </div>
